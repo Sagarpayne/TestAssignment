@@ -1,13 +1,12 @@
 
-package com.sagar.zoo;
+package com.sagar;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 
 public class MainClass {
+
+	static ArrayList<Animal> animalsInZoo = new ArrayList<Animal>();
 
 	public static void main(String[] args) {
 
@@ -16,12 +15,10 @@ public class MainClass {
 
 			numberOfDays = Integer.parseInt(args[0]);
 		} catch (Exception ex) {
-			numberOfDays = 2;
+			numberOfDays = 1;
 		}
 
 		System.out.println("===== Welcome to ZOO =====");
-
-		ArrayList<Animal> animalsInZoo = new ArrayList<Animal>();
 
 		animalsInZoo.add(new Dog(DogBreed.HUNTING_DOG, "Dog One", "Meat"));
 		animalsInZoo.add(new Dog(DogBreed.ASSISTANCE_DOG, "Dog Two", "Fresh Meat"));
@@ -37,15 +34,17 @@ public class MainClass {
 		displayInitial(animalsInZoo);
 
 		// addNewFriend(dogs,parrots,chickens);
-		System.out.println("==== Initial List ====");
-		initFriends(animalsInZoo);
+		System.out.println("\n==== Initial List ====");
+		initFriends();
 		display(animalsInZoo);
 
-		for (int i = 0; i <= numberOfDays; i++) {
-			System.out.println("==== Day "+ i + " Start ====");
-			addNewFriend(animalsInZoo);
+		for (int i = 1; i <= numberOfDays; i++) {
+			System.out.println("\n==== Day " + i + " Start ====");
+			removeFriend();
+			addNewFriend();
+			System.out.println("==== Day " + i + " Finished ====\n");
+
 			display(animalsInZoo);
-			System.out.println("==== Day "+ i + " Finished ====");
 		}
 
 	}
@@ -62,43 +61,76 @@ public class MainClass {
 
 	}
 
-	static void addNewFriend(ArrayList<Animal> animalList) {
+	static void removeFriend() {
+		for (Animal animal : animalsInZoo) {
 
-		for (Animal animal : animalList) {
+			// System.out.println("Animal Name :" + animal.name);
 
+			// animal.friendList.forEach(x -> System.out.println(x));
+
+			if (animal.friendList.size() > 0) {
+				int random = (int) (0 + Math.floor(Math.random() * animal.friendList.size()));
+				String removedFriend = animal.friendList.get(random);
+				animal.friendList.remove(removedFriend);
+
+				for (Animal removedanimal : animalsInZoo) {
+
+					if (removedanimal.name.equals(removedFriend) && removedanimal.friendList.size() > 0) {
+						for (int i = 0; i < removedanimal.friendList.size(); i++) {
+							String tempName = removedanimal.friendList.get(i);
+							if (tempName.equals(animal.name)) {
+								removedanimal.friendList.remove(i);
+							}
+						}
+					}
+				}
+
+				animalsInZoo.get(random).friendList.remove(animal.name);
+				System.out.println(animal.name + " broke friends with " + removedFriend);
+			}
+		}
+	}
+
+	static void addNewFriend() {
+
+		for (Animal animal : animalsInZoo) {
+			int countAnimals = 0;
 			String nameOfAnimal = animal.name;
-			for (Animal friend : animalList) {
-
+			for (Animal friend : animalsInZoo) {
+				
+				countAnimals+=1;
 				if (!animal.friendList.contains((friend.name)) && !friend.name.equals(nameOfAnimal)) {
 
 					Random randomBool = new Random();
+					if (randomBool.nextBoolean() || countAnimals <= animalsInZoo.size() ) {
 
-					if (randomBool.nextBoolean()) {
-						if(animal.addNewFriend(friend.name)){ 
-						friend.addNewFriend(nameOfAnimal);
+						System.out.println(animal.name + " became friends with " + friend.name);
+						animal.friendList.add(friend.name);
+						friend.friendList.add(nameOfAnimal);
+
 						break;
-						}
 					}
 				}
 
 			}
 		}
+
 	}
 
-	static void initFriends(ArrayList<Animal> animalList) {
+	static void initFriends() {
 
-		for (Animal animal : animalList) {
+		for (Animal animal : animalsInZoo) {
 
 			String nameOfAnimal = animal.name;
-			for (Animal friend : animalList) {
+			for (Animal friend : animalsInZoo) {
 
 				if (!animal.friendList.contains((friend.name)) && !friend.name.equals(nameOfAnimal)) {
 
 					Random randomBool = new Random();
-
 					if (randomBool.nextBoolean()) {
 						animal.friendList.add(friend.name);
 						friend.friendList.add(nameOfAnimal);
+
 					}
 				}
 
@@ -116,43 +148,6 @@ class Animal {
 
 	Animal() {
 		this.friendList = new ArrayList<String>();
-	}
-
-	/*
-	 * public String getName() { return name; } public void setName(String name) {
-	 * this.name = name; } public String getFavoriteFood() { return favoriteFood; }
-	 * public void setFavoriteFood(String favoriteFood) { this.favoriteFood =
-	 * favoriteFood; }
-	 */
-
-	boolean addNewFriend(String friend) {
-
-		if (this.friendList.size() > 0) {
-
-			if (!this.friendList.contains(friend)) {
-				this.friendList.add(friend);
-				this.removeOldFriend();
-				return true;
-			}
-			else
-				return false;
-		} else {
-			this.friendList.add(friend);
-			this.removeOldFriend();
-			return true;
-		}
-
-	}
-
-	void removeOldFriend() {
-		int countOfFriends = this.friendList.size();
-
-		if (countOfFriends > 0) {
-
-			int random = (int) (0 + Math.floor(Math.random() * countOfFriends));
-
-			this.friendList.remove(this.friendList.get(random));
-		}
 	}
 
 	public String DisplayAnimal() {
